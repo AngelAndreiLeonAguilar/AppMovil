@@ -1,0 +1,148 @@
+/// Configuración de la aplicación.
+///
+/// Todo lo que depende del negocio y no del diseño vive aquí para que puedas
+/// sustituirlo por datos reales sin tocar la interfaz.
+library;
+
+import 'package:flutter/foundation.dart';
+
+import '../../domain/user.dart';
+
+/// Cuenta que se crea al instalar la app en modo local.
+class DemoAccount {
+  const DemoAccount({
+    required this.name,
+    required this.email,
+    required this.password,
+    required this.role,
+    this.artisanId,
+  });
+
+  final String name;
+  final String email;
+  final String password;
+  final UserRole role;
+  final String? artisanId;
+}
+
+abstract final class AppConfig {
+  static const String appName = 'Bel-Aaktun';
+  static const String tagline = 'Cuevas artesanales de Bécal';
+
+  // ---------------------------------------------------------------------------
+  // Modo de datos
+  //
+  // Sin servidor, la app guarda cuentas, catálogo, reservas y fotos en el
+  // propio teléfono. En cuanto exista el backend, compila con
+  // `--dart-define=API_BASE_URL=https://api.tudominio.mx/api/v1` y la
+  // autenticación volverá a la API real.
+  // ---------------------------------------------------------------------------
+
+  /// `true` mientras no se haya definido `API_BASE_URL` al compilar.
+  static bool get useLocalBackend =>
+      const String.fromEnvironment('API_BASE_URL').isEmpty;
+
+  /// En modo local, las solicitudes de taller se aprueban al instante para que
+  /// los artesanos de prueba puedan usar su panel sin esperar a un
+  /// administrador. Ponlo en `false` para revisar cada solicitud a mano desde
+  /// la cuenta de administración.
+  static const bool autoApproveArtisans = true;
+
+  /// Crea cuentas de demostración la primera vez que se abre la app.
+  static const bool seedDemoAccounts = true;
+
+  /// Cuentas de demostración (solo modo local). Cambia o elimina antes de
+  /// publicar la app en tiendas.
+  static const List<DemoAccount> demoAccounts = [
+    DemoAccount(
+      name: 'Administración Bel-Aaktun',
+      email: 'admin@belaaktun.mx',
+      password: 'Becal2026',
+      role: UserRole.admin,
+    ),
+    DemoAccount(
+      name: 'Doña Elena Chan',
+      email: 'elena@belaaktun.mx',
+      password: 'Becal2026',
+      role: UserRole.artisan,
+      artisanId: 'art-01',
+    ),
+    DemoAccount(
+      name: 'Turista demo',
+      email: 'turista@belaaktun.mx',
+      password: 'Becal2026',
+      role: UserRole.tourist,
+    ),
+  ];
+
+  /// URL base de la API.
+  ///
+  /// Se puede sobrescribir al compilar:
+  /// `flutter run --dart-define=API_BASE_URL=https://api.tudominio.mx/api/v1`
+  ///
+  /// Por defecto apunta al backend local: `10.0.2.2` desde el emulador de
+  /// Android y `127.0.0.1` en escritorio, iOS simulator y web.
+  static String get apiBaseUrl {
+    const override = String.fromEnvironment('API_BASE_URL');
+    if (override.isNotEmpty) return override;
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      return 'http://10.0.2.2:5001/api/v1';
+    }
+    return 'http://127.0.0.1:5001/api/v1';
+  }
+
+  /// Identificador usado como User-Agent al pedir teselas del mapa.
+  /// Debe coincidir con `applicationId` de Android / `PRODUCT_BUNDLE_IDENTIFIER`.
+  static const String packageName = 'com.belaaktun.bel_aaktun';
+
+  /// Muestra la etiqueta "Contenido demo" en catálogo y contacto.
+  /// Cámbialo a `false` cuando conectes el contenido real.
+  static const bool showDemoBadges = true;
+
+  // ---------------------------------------------------------------------------
+  // Mapa
+  //
+  // Por defecto se usan teselas de OpenStreetMap: gratis, sin API key y sin
+  // cuenta de facturación. Para producción con tráfico alto conviene cambiar
+  // [mapTileUrl] por un proveedor con SLA (MapTiler, Stadia, Thunderforest o
+  // tus propias teselas) y revisar [mapAttribution].
+  // ---------------------------------------------------------------------------
+
+  /// Centro del pueblo de Bécal, Calkiní, Campeche.
+  static const double mapCenterLat = 20.4426;
+  static const double mapCenterLng = -90.0282;
+  static const double mapInitialZoom = 14.5;
+
+  /// Plantilla de teselas. `{z}/{x}/{y}` y `{r}` (retina) los resuelve
+  /// flutter_map. Ejemplo MapTiler:
+  /// `https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=TU_KEY`
+  static const String mapTileUrl =
+      'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+  /// Atribución obligatoria del proveedor de teselas.
+  static const String mapAttribution = '© OpenStreetMap';
+
+  // ---------------------------------------------------------------------------
+  // Contacto — TODO: sustituir por los datos reales de Bel-Aaktun.
+  // ---------------------------------------------------------------------------
+  static const String phone = '+52 981 000 0000';
+  static const String whatsapp = '+52 981 000 0000';
+  static const String email = 'hola@belaaktun.mx';
+  static const String address = 'Bécal, Campeche, México';
+  static const String schedule = 'Lunes a sábado · 9:00 a 18:00';
+  static const String instagram = '@belaaktun';
+  static const String facebook = 'Bel-Aaktun';
+
+  // ---------------------------------------------------------------------------
+  // Reservas
+  // ---------------------------------------------------------------------------
+  static const List<String> bookingTimeSlots = [
+    '09:00',
+    '10:30',
+    '12:00',
+    '16:00',
+    '17:30',
+  ];
+  static const int maxPeoplePerBooking = 12;
+  static const int bookingHorizonDays = 21;
+}

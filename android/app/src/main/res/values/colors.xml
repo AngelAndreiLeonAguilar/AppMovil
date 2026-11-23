@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta oficial de Bel-Aaktun (espejo de AppColors). -->
+    <color name="brand_marron_oscuro">#21140E</color>
+    <color name="brand_marron_profundo">#302018</color>
+    <color name="brand_terracota">#D65F38</color>
+    <color name="brand_crema">#F5F0E5</color>
+    <color name="brand_dorado_palma">#C99A32</color>
+    <color name="brand_blanco_calido">#FFF9F0</color>
+
+    <!-- Fondo de arranque: la app abre en modo oscuro. -->
+    <color name="brand_background">@color/brand_marron_oscuro</color>
+</resources>
