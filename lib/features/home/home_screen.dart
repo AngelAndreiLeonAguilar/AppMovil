@@ -23,6 +23,7 @@ import '../catalog/widgets/product_card.dart';
 import '../contact/contact_screen.dart';
 import '../map/widgets/bel_map.dart';
 import '../account/account_screen.dart';
+import '../../core/widgets/bel_logo.dart';
 
 /// Pantalla de inicio: fotografía inmersiva, experiencias, piezas, artesanos.
 class HomeScreen extends StatelessWidget {
@@ -150,6 +151,8 @@ class _HomeHero extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const BelLogo(size: 44),
+                  const SizedBox(width: 12),
                   Expanded(
                     child: FittedBox(
                       fit: BoxFit.scaleDown,

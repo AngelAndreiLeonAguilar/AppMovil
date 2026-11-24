@@ -6,6 +6,7 @@
 /// `GET /productos`, `GET /cuevas`) manteniendo las entidades de `models.dart`.
 library;
 
+import '../core/config/app_config.dart';
 import 'models.dart';
 
 abstract final class DemoContent {
@@ -17,7 +18,7 @@ abstract final class DemoContent {
     'Miniaturas',
   ];
 
-  static const List<Artisan> artisans = [
+  static const List<Artisan> sampleArtisans = [
     Artisan(
       id: 'art-01',
       name: 'Doña Elena Chan',
@@ -72,7 +73,7 @@ abstract final class DemoContent {
     ),
   ];
 
-  static const List<Product> products = [
+  static const List<Product> sampleProducts = [
     Product(
       id: 'prod-01',
       name: 'Sombrero Brisa de Bécal',
@@ -143,7 +144,7 @@ abstract final class DemoContent {
     ),
   ];
 
-  static const List<CaveLocation> caves = [
+  static const List<CaveLocation> sampleCaves = [
     CaveLocation(
       id: 'cave-01',
       name: 'Cueva La Esperanza',
@@ -204,7 +205,7 @@ abstract final class DemoContent {
     ),
   ];
 
-  static const List<Experience> experiences = [
+  static const List<Experience> sampleExperiences = [
     Experience(
       id: 'exp-01',
       title: 'Recorrido por las cuevas',
@@ -239,6 +240,41 @@ abstract final class DemoContent {
       maxParticipants: 15,
     ),
   ];
+
+  // ---------------------------------------------------------------------------
+  // Datos visibles en la app
+  //
+  // Con `AppConfig.seedSampleData = false` (versión para el piloto) la app
+  // arranca vacía: sin talleres, piezas ni experiencias de ejemplo. Del mapa
+  // solo queda la plaza del pueblo como punto de encuentro.
+  // ---------------------------------------------------------------------------
+
+  static List<Artisan> get artisans =>
+      AppConfig.seedSampleData ? sampleArtisans : const [];
+
+  static List<Product> get products =>
+      AppConfig.seedSampleData ? sampleProducts : const [];
+
+  static List<Experience> get experiences =>
+      AppConfig.seedSampleData ? sampleExperiences : const [];
+
+  static List<CaveLocation> get caves => AppConfig.seedSampleData
+      ? sampleCaves
+      : [
+          for (final cave in sampleCaves)
+            if (cave.artisanIds.isEmpty) cave,
+        ];
+
+  /// Ids de todo el contenido de ejemplo (para limpiarlo de instalaciones
+  /// anteriores).
+  static Set<String> get sampleArtisanIds =>
+      {for (final artisan in sampleArtisans) artisan.id};
+
+  static Set<String> get sampleProductIds =>
+      {for (final product in sampleProducts) product.id};
+
+  static Set<String> get sampleExperienceIds =>
+      {for (final experience in sampleExperiences) experience.id};
 
   static Artisan? artisanById(String id) {
     for (final artisan in artisans) {

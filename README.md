@@ -61,10 +61,16 @@ Importante para las pruebas con clientes:
   teléfonos usa el servidor de pruebas (sección siguiente).
 - El registro de taller se **aprueba al instante** (`AppConfig.autoApproveArtisans`)
   para que el artesano pueda subir piezas desde el primer minuto.
-- Cuentas de demostración que se crean al instalar (contraseña `Becal2026`):
-  `admin@belaaktun.mx` (administración), `elena@belaaktun.mx` (taller con
-  reservas de ejemplo) y `turista@belaaktun.mx`. Cámbialas o apágalas
-  (`AppConfig.seedDemoAccounts`) antes de publicar en tiendas.
+- **Versión del piloto: la app arranca vacía.** No trae talleres, piezas,
+  experiencias, reservas ni usuarios de ejemplo; los talleres y visitantes
+  reales se registran desde la app. Al actualizar sobre una versión anterior,
+  los datos de ejemplo se borran solos y lo creado por usuarios reales se
+  conserva. Del mapa solo queda la plaza de Bécal como punto de encuentro.
+- Única cuenta inicial: `admin@belaaktun.mx` (administración, contraseña
+  `Becal2026`), para aprobar talleres y moderar el catálogo. **Cambia la
+  contraseña** en `AppConfig.adminAccount` antes de entregar la app.
+- Los datos de ejemplo siguen disponibles para las pruebas automáticas
+  (`AppConfig.seedSampleData`, que activa `test/flutter_test_config.dart`).
 - Las contraseñas se guardan con sal y hash, nunca en texto plano.
 
 ### Probar con dos o más teléfonos (servidor de pruebas en la red WiFi)
@@ -83,8 +89,8 @@ sí, la computadora hace de servidor provisional:
 3. En cada teléfono, en la pantalla de inicio de sesión toca **Servidor de
    pruebas → Conectar**, escribe la dirección, **Probar** y **Conectar**. La app
    se reinicia ya conectada (también está en *Mi cuenta / Perfil*).
-4. Teléfono 1: crea una cuenta con **Tengo un taller** (o entra con
-   `elena@belaaktun.mx`). Teléfono 2: crea una cuenta de visitante.
+4. Teléfono 1: crea una cuenta con **Tengo un taller**. Teléfono 2: crea una
+   cuenta de visitante.
 
 Qué se comparte: cuentas, talleres, catálogo, fotos, reservas, compras y
 avisos. Cada teléfono revisa cambios cada 4 segundos y muestra el aviso en la
@@ -295,7 +301,7 @@ no para publicar en Play Store.
 2. **Servidor en la nube** (Firebase o el backend en Python) para sincronizar
    datos y fotos entre teléfonos fuera de la red local.
 3. **Notificaciones push** entre teléfonos (Firebase Cloud Messaging).
-4. **Datos reales**: sustituir los talleres, piezas, paradas del mapa y datos
-   de contacto de ejemplo, y poner `showDemoBadges = false`.
+4. **Datos reales**: los talleres ya se registran desde la app; faltan las
+   paradas reales del mapa y los datos de contacto de la plataforma.
 5. Recuperación de contraseña por correo y firma de release propia para
    publicar en Play Store.

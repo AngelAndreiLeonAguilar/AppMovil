@@ -80,6 +80,7 @@ class LocalAuthApi implements AuthApi {
         _nextUserId = json['nextUserId'] as int? ?? _accounts.length + 1;
         _nextApplicationId =
             json['nextApplicationId'] as int? ?? _applications.length + 1;
+        _removeSampleAccounts();
         return;
       } catch (_) {
         // Datos dañados: se empieza de cero con las cuentas de prueba.
@@ -90,6 +91,22 @@ class LocalAuthApi implements AuthApi {
       }
     }
     if (AppConfig.seedDemoAccounts) _seedDemoAccounts();
+  }
+
+  /// Versión del piloto: borra las cuentas de prueba (artesana y turista) que
+  /// hubieran quedado de versiones anteriores, con sus sesiones y solicitudes.
+  void _removeSampleAccounts() {
+    if (AppConfig.seedSampleData) return;
+    final emails = AppConfig.sampleAccountEmails;
+    final removed = {
+      for (final account in _accounts)
+        if (emails.contains(account.email)) account.id,
+    };
+    if (removed.isEmpty) return;
+    _accounts.removeWhere((account) => removed.contains(account.id));
+    _applications.removeWhere((item) => removed.contains(item.userId));
+    _tokens.removeWhere((_, token) => removed.contains(token.userId));
+    _persist();
   }
 
   void _seedDemoAccounts() {

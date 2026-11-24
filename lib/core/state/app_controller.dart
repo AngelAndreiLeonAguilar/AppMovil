@@ -348,7 +348,7 @@ class AppController extends ChangeNotifier {
 
   /// Talleres de muestra que trae la app (no son cuentas reales).
   bool isSampleArtisan(String id) =>
-      DemoContent.artisans.any((artisan) => artisan.id == id);
+      DemoContent.sampleArtisans.any((artisan) => artisan.id == id);
 
   Artisan? artisanById(String id) {
     for (final artisan in _artisans) {
@@ -2485,7 +2485,9 @@ class AppController extends ChangeNotifier {
     _products = catalog.products;
     _services = catalog.services;
 
-    if (_bookings.isEmpty) {
+    await _removeSampleData();
+
+    if (_bookings.isEmpty && AppConfig.seedSampleData) {
       _bookings = seedBookings();
       if (_notifications.isEmpty) _notifications = seedNotifications();
       await _persistBookings();
@@ -2789,6 +2791,61 @@ class AppController extends ChangeNotifier {
   }
 
   Future<void> _persistBookings() => _repository.save(_bookings);
+
+  /// Versión del piloto: borra de esta instalación los talleres, piezas,
+  /// experiencias, reservas, pedidos, comisiones y avisos de ejemplo que
+  /// hubieran quedado de versiones anteriores. Lo creado por talleres y
+  /// usuarios reales no se toca (sus ids nunca coinciden con los de ejemplo).
+  Future<void> _removeSampleData() async {
+    if (AppConfig.seedSampleData) return;
+    final artisanIds = DemoContent.sampleArtisanIds;
+    final productIds = DemoContent.sampleProductIds;
+    final experienceIds = DemoContent.sampleExperienceIds;
+    final aliasIds = {for (final id in artisanIds) 'u-$id'};
+
+    final artisans = _artisans.length;
+    _artisans.removeWhere((artisan) => artisanIds.contains(artisan.id));
+    if (_artisans.length != artisans) await _persistArtisans();
+
+    final products = _products.length;
+    final services = _services.length;
+    _products = [
+      for (final product in _products)
+        if (!productIds.contains(product.id) &&
+            !artisanIds.contains(product.artisanId))
+          product,
+    ];
+    _services = [
+      for (final service in _services)
+        if (!experienceIds.contains(service.id) &&
+            !artisanIds.contains(service.artisanId))
+          service,
+    ];
+    if (_products.length != products || _services.length != services) {
+      await _persistCatalog();
+    }
+
+    final bookings = _bookings.length;
+    _bookings.removeWhere(
+      (booking) =>
+          _isSeedBooking(booking) || artisanIds.contains(booking.artisanId),
+    );
+    if (_bookings.length != bookings) await _persistBookings();
+
+    final orders = _orders.length;
+    _orders.removeWhere((order) => artisanIds.contains(order.artisanId));
+    if (_orders.length != orders) await _persistOrders();
+
+    final ledger = _ledger.length;
+    _ledger.removeWhere((entry) => artisanIds.contains(entry.artisanId));
+    if (_ledger.length != ledger) await _persistLedger();
+
+    final notifications = _notifications.length;
+    _notifications.removeWhere(
+      (item) => item.id.startsWith('nt-seed-') || aliasIds.contains(item.userId),
+    );
+    if (_notifications.length != notifications) await _persistNotifications();
+  }
 
   Future<void> _persistNotifications() async {
     await _store.write(

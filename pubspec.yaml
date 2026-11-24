@@ -35,6 +35,7 @@ flutter:
   # Las fotografías reales van en assets/images/ (ver el README de esa carpeta).
   assets:
     - assets/images/
+    - assets/brand/
 
   fonts:
     # Títulos y encabezados

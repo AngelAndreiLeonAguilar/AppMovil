@@ -48,18 +48,41 @@ abstract final class AppConfig {
   /// la cuenta de administración.
   static const bool autoApproveArtisans = true;
 
-  /// Crea cuentas de demostración la primera vez que se abre la app.
+  /// Datos de ejemplo (talleres, piezas, experiencias, reservas y las cuentas
+  /// de artesana y turista de prueba).
+  ///
+  /// `false` en la versión del piloto: la app arranca vacía para que se
+  /// registren los talleres y usuarios reales, y al actualizar se borran los
+  /// datos de ejemplo que hubiera de versiones anteriores. Las pruebas
+  /// automáticas lo activan en `test/flutter_test_config.dart`.
+  static bool seedSampleData = false;
+
+  /// Crea las cuentas iniciales la primera vez que se abre la app. Siempre
+  /// incluye la administración, que aprueba talleres y modera el catálogo.
   static const bool seedDemoAccounts = true;
 
-  /// Cuentas de demostración (solo modo local). Cambia o elimina antes de
-  /// publicar la app en tiendas.
-  static const List<DemoAccount> demoAccounts = [
-    DemoAccount(
-      name: 'Administración Bel-Aaktun',
-      email: 'admin@belaaktun.mx',
-      password: 'Becal2026',
-      role: UserRole.admin,
-    ),
+  /// Cuenta de administración de la plataforma. Cambia la contraseña antes de
+  /// entregar la app a los talleres.
+  static const DemoAccount adminAccount = DemoAccount(
+    name: 'Administración Bel-Aaktun',
+    email: 'admin@belaaktun.mx',
+    password: 'Becal2026',
+    role: UserRole.admin,
+  );
+
+  /// Cuentas que se crean al instalar: la administración y, solo con datos de
+  /// ejemplo, la artesana y el turista de prueba.
+  static List<DemoAccount> get demoAccounts => [
+    adminAccount,
+    if (seedSampleData) ...sampleAccounts,
+  ];
+
+  /// Correos de las cuentas de ejemplo (para limpiarlas al actualizar).
+  static Set<String> get sampleAccountEmails =>
+      {for (final account in sampleAccounts) account.email};
+
+  /// Cuentas de prueba (solo con `seedSampleData`).
+  static const List<DemoAccount> sampleAccounts = [
     DemoAccount(
       name: 'Doña Elena Chan',
       email: 'elena@belaaktun.mx',

@@ -57,3 +57,4 @@ test_out.txt
 key.properties
 android/local.properties
 
+test/golden/failures/

@@ -29,7 +29,11 @@ Future<void> _loadFonts() async {
     ..addFont(rootBundle.load('assets/fonts/Lato-Black.ttf'))
     ..addFont(rootBundle.load('assets/fonts/Lato-Italic.ttf'));
 
-  await Future.wait([serif.load(), garamond.load(), lato.load()]);
+  // Íconos de Material: sin esto se dibujan como cuadros vacíos.
+  final icons = FontLoader('MaterialIcons')
+    ..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'));
+
+  await Future.wait([serif.load(), garamond.load(), lato.load(), icons.load()]);
 }
 
 /// Comparador que tolera diferencias mínimas.

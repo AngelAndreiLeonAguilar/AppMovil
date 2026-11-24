@@ -10,9 +10,9 @@ List<Booking> seedBookings({DateTime? now}) {
   final today = now ?? DateTime.now();
   final day = DateTime(today.year, today.month, today.day);
 
-  final caveTour = DemoContent.experiences[0];
-  final weaving = DemoContent.experiences[1];
-  final meeting = DemoContent.experiences[2];
+  final caveTour = DemoContent.sampleExperiences[0];
+  final weaving = DemoContent.sampleExperiences[1];
+  final meeting = DemoContent.sampleExperiences[2];
 
   Booking build({
     required String id,

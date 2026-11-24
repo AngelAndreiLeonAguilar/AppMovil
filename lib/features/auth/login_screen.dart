@@ -10,6 +10,7 @@ import '../../core/widgets/bel_tag.dart';
 import '../../core/widgets/bel_text_field.dart';
 import '../account/test_server_card.dart';
 import 'register_screen.dart';
+import '../../core/widgets/bel_logo.dart';
 
 /// Inicio de sesión contra la API real.
 class LoginScreen extends StatefulWidget {
@@ -175,6 +176,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const BelLogo(size: 96),
+                      const SizedBox(height: Insets.lg),
                       Text(
                         'PLATAFORMA ARTESANAL',
                         style: context.texts.labelSmall?.copyWith(

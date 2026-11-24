@@ -73,6 +73,12 @@ void main() {
     expect(find.text('PLATAFORMA ARTESANAL'), findsOneWidget);
     expect(find.text('Entrar'), findsOneWidget);
     expect(find.text('Crear cuenta'), findsOneWidget);
+    // El logo empuja el contenido: el botón queda debajo del pliegue.
+    await tester.dragUntilVisible(
+      find.text('Registrar mi taller'),
+      find.byType(CustomScrollView),
+      const Offset(0, -120),
+    );
     expect(find.text('Registrar mi taller'), findsOneWidget);
 
     await tester.drag(find.byType(CustomScrollView), const Offset(0, -500));
