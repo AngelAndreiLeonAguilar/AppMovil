@@ -81,6 +81,7 @@ class LocalAuthApi implements AuthApi {
         _nextApplicationId =
             json['nextApplicationId'] as int? ?? _applications.length + 1;
         _removeSampleAccounts();
+        _syncAdminAccount();
         return;
       } catch (_) {
         // Datos dañados: se empieza de cero con las cuentas de prueba.
@@ -109,8 +110,43 @@ class LocalAuthApi implements AuthApi {
     _persist();
   }
 
+  /// La cuenta de administración toma la contraseña definida al compilar. Si
+  /// no existe (instalaciones anteriores o compiladas sin contraseña), se crea.
+  void _syncAdminAccount() {
+    final password = AppConfig.adminPassword;
+    if (password.isEmpty) return;
+    final index = _accounts.indexWhere(
+      (account) => account.email == AppConfig.adminEmail,
+    );
+    if (index < 0) {
+      final salt = _salt();
+      _accounts.add(
+        _Account(
+          id: _nextUserId++,
+          nombre: AppConfig.adminAccount.name,
+          email: AppConfig.adminEmail,
+          salt: salt,
+          hash: _hash(password, salt),
+          role: UserRole.admin,
+          estado: 'activo',
+          creadoEn: _clock(),
+        ),
+      );
+      _persist();
+      return;
+    }
+    final admin = _accounts[index];
+    if (_hash(password, admin.salt) == admin.hash) return;
+    admin.salt = _salt();
+    admin.hash = _hash(password, admin.salt);
+    _tokens.removeWhere((_, token) => token.userId == admin.id);
+    _persist();
+  }
+
   void _seedDemoAccounts() {
     for (final demo in AppConfig.demoAccounts) {
+      // Sin contraseña (APK compilado sin ADMIN_PASSWORD) no se crea.
+      if (demo.password.isEmpty) continue;
       final salt = _salt();
       _accounts.add(
         _Account(

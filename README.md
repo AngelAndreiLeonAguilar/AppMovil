@@ -1,9 +1,58 @@
-# Bel-Aaktun
+<p align="center">
+  <img src="docs/screenshots/logo.png" width="140" alt="Logotipo de Bel·Aaktun">
+</p>
 
-Plataforma de turismo artesanal y gestión de talleres en Bécal, Calkiní,
-Campeche: cuevas, talleres de Jipi Japa, artesanas y reservación de visitas.
+<h1 align="center">Bel·Aaktun</h1>
 
-Flutter 3.47 (Dart 3.13) · Android · iOS · Web.
+<p align="center">
+  <i>Conectamos la tradición con nuevas oportunidades.</i><br>
+  Turismo artesanal y gestión de talleres en Bécal, Calkiní, Campeche.
+</p>
+
+<p align="center">
+  <a href="https://github.com/AngelAndreiLeonAguilar/AppMovil/actions/workflows/ci.yml"><img src="https://github.com/AngelAndreiLeonAguilar/AppMovil/actions/workflows/ci.yml/badge.svg" alt="Pruebas"></a>
+  <img src="https://img.shields.io/badge/Flutter-3.47-02569B?logo=flutter" alt="Flutter 3.47">
+  <img src="https://img.shields.io/badge/estado-prototipo%20%C2%B7%20piloto-B4452A" alt="Estado: prototipo, piloto">
+  <img src="https://img.shields.io/badge/licencia-todos%20los%20derechos%20reservados-1F1410" alt="Licencia">
+</p>
+
+App móvil que conecta a turistas y compradores con los talleres de sombreros
+de jipi japa de Bécal: el turista descubre talleres, compra piezas para
+recoger en el taller y reserva visitas; el artesano administra su catálogo,
+pedidos, inventario e ingresos; y la administración verifica talleres,
+mensualidades y comisiones.
+
+> **Estado:** prototipo funcional en Android, listo para un piloto con talleres
+> reales. Todavía no cobra en línea ni usa un servidor en la nube (ver
+> *Pendientes para producción*).
+
+| Inicio | Catálogo | Pieza | Carrito | Panel del taller | Administración |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/inicio.jpg" width="130" alt="Inicio"> | <img src="docs/screenshots/catalogo.jpg" width="130" alt="Catálogo"> | <img src="docs/screenshots/pieza.jpg" width="130" alt="Ficha de pieza"> | <img src="docs/screenshots/carrito.jpg" width="130" alt="Carrito"> | <img src="docs/screenshots/panel_artesano.jpg" width="130" alt="Panel del taller"> | <img src="docs/screenshots/administracion.jpg" width="130" alt="Administración"> |
+
+## Instalación rápida
+
+**Probar la app (Android):** descarga el APK de la última versión en
+[Releases](https://github.com/AngelAndreiLeonAguilar/AppMovil/releases) e instálalo (permite instalar apps de origen
+desconocido si Android lo pide).
+
+**Desarrollo:**
+
+```powershell
+git clone https://github.com/AngelAndreiLeonAguilar/AppMovil.git
+cd AppMovil
+flutter pub get
+flutter run --dart-define=ADMIN_PASSWORD=<contraseña-de-administración>
+```
+
+Requisitos: Flutter 3.47 (Dart 3.13) y Android SDK (compileSdk 37). La
+contraseña de administración no está en el código: se define al compilar con
+`--dart-define` (ver *Versión de pruebas sin servidor*).
+
+## Equipo
+
+Proyecto del **Equipo 3** · presentador: Manuel Daniel Yah Dzul.
+
 
 ## Qué incluye
 
@@ -66,9 +115,12 @@ Importante para las pruebas con clientes:
   reales se registran desde la app. Al actualizar sobre una versión anterior,
   los datos de ejemplo se borran solos y lo creado por usuarios reales se
   conserva. Del mapa solo queda la plaza de Bécal como punto de encuentro.
-- Única cuenta inicial: `admin@belaaktun.mx` (administración, contraseña
-  `Becal2026`), para aprobar talleres y moderar el catálogo. **Cambia la
-  contraseña** en `AppConfig.adminAccount` antes de entregar la app.
+- Única cuenta inicial: `admin@belaaktun.mx` (administración), para aprobar
+  talleres, confirmar mensualidades y moderar el catálogo. **Su contraseña no
+  está en el código**: se define al compilar con
+  `--dart-define=ADMIN_PASSWORD=...`. Si se compila sin ella, no se crea la
+  cuenta de administración. Cada vez que abre la app, la cuenta toma la
+  contraseña del APK instalado.
 - **Mensualidad de los talleres** (`AppConfig.monthlyFee`, $199 con IVA): con
   la mensualidad al día el taller aparece **Activo** y recibe pedidos y
   reservas; sin ella aparece **Fuera de servicio** (se ve, pero no vende). El
@@ -293,12 +345,15 @@ static const String mapAttribution = '© OpenStreetMap © MapTiler';
 
 ```powershell
 flutter pub get
-flutter run
+flutter run --dart-define=ADMIN_PASSWORD=<contraseña>
 flutter analyze
-flutter test                    # dominio, compras, comisiones, disponibilidad, admin y capturas
+flutter test                    # 109 pruebas: dominio, compras, comisiones, mensualidad, admin y capturas
 flutter test --update-goldens   # solo si cambias la interfaz a propósito
-flutter build apk --release
+flutter build apk --release --dart-define=ADMIN_PASSWORD=<contraseña>
 ```
+
+Cada cambio que se sube a GitHub corre `flutter analyze` y `flutter test`
+automáticamente (`.github/workflows/ci.yml`).
 
 La firma de release usa la clave de depuración: sirve para instalar y probar,
 no para publicar en Play Store.
@@ -314,3 +369,8 @@ no para publicar en Play Store.
    paradas reales del mapa y los datos de contacto de la plataforma.
 5. Recuperación de contraseña por correo y firma de release propia para
    publicar en Play Store.
+
+## Licencia
+
+© 2026 Equipo 3 · Bel·Aaktun. Todos los derechos reservados. Consulta
+[LICENSE](LICENSE).

@@ -1,0 +1,29 @@
+name: Pruebas
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  analizar-y-probar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Análisis estático
+        run: flutter analyze
+
+      # Las capturas de referencia se generan en Windows; en Linux las fuentes
+      # se dibujan distinto, así que aquí se corren las pruebas de lógica y de
+      # pantallas, sin comparar capturas.
+      - name: Pruebas
+        run: flutter test --exclude-tags golden

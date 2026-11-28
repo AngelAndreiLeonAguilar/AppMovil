@@ -10,6 +10,7 @@ import 'package:bel_aaktun/core/config/app_config.dart';
 /// enciende para probarla.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   AppConfig.seedSampleData = true;
+  AppConfig.testAccountsPassword = 'Becal2026';
   AppConfig.enforceSubscription = false;
   await testMain();
 }

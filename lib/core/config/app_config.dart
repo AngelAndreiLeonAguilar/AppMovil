@@ -88,12 +88,29 @@ abstract final class AppConfig {
   /// incluye la administración, que aprueba talleres y modera el catálogo.
   static const bool seedDemoAccounts = true;
 
-  /// Cuenta de administración de la plataforma. Cambia la contraseña antes de
-  /// entregar la app a los talleres.
-  static const DemoAccount adminAccount = DemoAccount(
+  /// Contraseña de la administración. **No se guarda en el código**: se define
+  /// al compilar con `--dart-define=ADMIN_PASSWORD=...`. Sin ella no se crea
+  /// la cuenta de administración. Al abrir la app, la cuenta toma siempre esta
+  /// contraseña.
+  static const String _adminPasswordFromBuild = String.fromEnvironment(
+    'ADMIN_PASSWORD',
+  );
+
+  /// Contraseña para las cuentas de prueba (solo pruebas automáticas, se fija
+  /// en `test/flutter_test_config.dart`).
+  static String testAccountsPassword = '';
+
+  static String get adminPassword => _adminPasswordFromBuild.isNotEmpty
+      ? _adminPasswordFromBuild
+      : testAccountsPassword;
+
+  /// Cuenta de administración de la plataforma.
+  static const String adminEmail = 'admin@belaaktun.mx';
+
+  static DemoAccount get adminAccount => DemoAccount(
     name: 'Administración Bel-Aaktun',
-    email: 'admin@belaaktun.mx',
-    password: 'Becal2026',
+    email: adminEmail,
+    password: adminPassword,
     role: UserRole.admin,
   );
 
@@ -109,18 +126,18 @@ abstract final class AppConfig {
       {for (final account in sampleAccounts) account.email};
 
   /// Cuentas de prueba (solo con `seedSampleData`).
-  static const List<DemoAccount> sampleAccounts = [
+  static List<DemoAccount> get sampleAccounts => [
     DemoAccount(
       name: 'Doña Elena Chan',
       email: 'elena@belaaktun.mx',
-      password: 'Becal2026',
+      password: testAccountsPassword,
       role: UserRole.artisan,
       artisanId: 'art-01',
     ),
     DemoAccount(
       name: 'Turista demo',
       email: 'turista@belaaktun.mx',
-      password: 'Becal2026',
+      password: testAccountsPassword,
       role: UserRole.tourist,
     ),
   ];

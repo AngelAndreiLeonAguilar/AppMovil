@@ -34,10 +34,9 @@ El nombre viene del maya: «bel» es camino y «aktun» es cueva.
   - dorado (#E0B054).
 - Tipografías: Playfair Display (títulos), Cormorant Garamond (acentos en itálica) y Lato (texto).
 
-## Cuentas de demostración (contraseña: Becal2026)
-- admin@belaaktun.mx: administración
-- elena@belaaktun.mx: artesana, «Doña Elena Chan», Cueva La Esperanza
-- turista@belaaktun.mx: visitante
+## Cuentas
+- La app del piloto arranca vacía: solo existe admin@belaaktun.mx (administración). Su contraseña no está en el código; se define al compilar con --dart-define=ADMIN_PASSWORD.
+- Las cuentas de prueba (artesana «Doña Elena Chan» y turista) solo existen en las pruebas automáticas.
 
 Los datos de ejemplo son 4 talleres, piezas como el «Sombrero Brisa de Bécal» ($4,200 MXN) y experiencias de visita. Los talleres de muestra llevan la etiqueta «Ejemplo».
 
