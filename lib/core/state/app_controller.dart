@@ -340,15 +340,178 @@ class AppController extends ChangeNotifier {
     return artisanById(artisanId);
   }
 
-  /// Talleres visibles para el turista.
-  List<Artisan> get artisans => [
-    for (final artisan in _artisans)
-      if (artisan.isPublished) artisan,
-  ];
+  /// Talleres visibles para el turista: primero los activos y después los
+  /// que están fuera de servicio.
+  List<Artisan> get artisans {
+    final visible = [
+      for (final artisan in _artisans)
+        if (artisan.isPublished) artisan,
+    ];
+    final now = DateTime.now();
+    final active = [
+      for (final artisan in visible)
+        if (_inService(artisan, now)) artisan,
+    ];
+    return [
+      ...active,
+      for (final artisan in visible)
+        if (!active.contains(artisan)) artisan,
+    ];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Mensualidad del taller
+  // ---------------------------------------------------------------------------
+
+  bool _inService(Artisan artisan, DateTime now) =>
+      !AppConfig.enforceSubscription || artisan.isInServiceAt(now);
+
+  /// `true` si el taller tiene su mensualidad al día (o la regla está apagada).
+  bool isArtisanInService(String artisanId, {DateTime? now}) {
+    final artisan = artisanById(artisanId);
+    if (artisan == null) return !AppConfig.enforceSubscription;
+    return _inService(artisan, now ?? DateTime.now());
+  }
+
+  /// `null` si el taller puede recibir pedidos y reservas; si no, el motivo.
+  String? artisanServiceBlock(String artisanId, {DateTime? now}) {
+    final artisan = artisanById(artisanId);
+    if (artisan != null && artisan.isShowcase) {
+      return 'Este es un taller de ejemplo: los talleres reales sí reciben '
+          'pedidos y reservas.';
+    }
+    if (!isArtisanInService(artisanId, now: now)) {
+      return 'Este taller está fuera de servicio por ahora: no recibe pedidos '
+          'ni reservas hasta renovar su mensualidad.';
+    }
+    return null;
+  }
+
+  /// Talleres con un pago de mensualidad esperando confirmación.
+  int get pendingSubscriptionCount =>
+      _artisans.where((artisan) => artisan.hasPendingPayment).length;
+
+  /// Todos los talleres, para el panel de administración.
+  List<Artisan> get allArtisans => List.unmodifiable(_artisans);
+
+  /// El taller avisa que pagó su mensualidad (transferencia o efectivo).
+  Future<String?> reportSubscriptionPayment(String reference) async {
+    await _pull();
+    final current = _user;
+    final artisanId = current?.artisanId;
+    if (current == null ||
+        current.role != UserRole.artisan ||
+        artisanId == null) {
+      return 'Solo el taller puede registrar su pago.';
+    }
+    final clean = reference.trim();
+    if (clean.length < 3) {
+      return 'Escribe la referencia, el folio o cómo pagaste.';
+    }
+    final index = _artisans.indexWhere((item) => item.id == artisanId);
+    if (index < 0) return 'Completa primero el perfil de tu taller.';
+    _artisans[index] = _artisans[index].copyWith(
+      subscriptionPendingRef: clean,
+      subscriptionPendingAt: DateTime.now(),
+    );
+    await _persistArtisans();
+    notifyListeners();
+    return null;
+  }
+
+  /// La administración confirma el pago: el taller queda activo
+  /// [AppConfig.subscriptionDays] días más.
+  Future<String?> adminConfirmSubscription(
+    String artisanId, {
+    DateTime? now,
+  }) async {
+    await _pull();
+    if (!isAdmin) return 'Solo la administración puede confirmar pagos.';
+    final index = _artisans.indexWhere((item) => item.id == artisanId);
+    if (index < 0) return 'No se encontró ese taller.';
+    final artisan = _artisans[index];
+    final current = now ?? DateTime.now();
+    final today = DateTime(current.year, current.month, current.day);
+    final until = artisan.subscriptionUntil;
+    final base = until != null && !until.isBefore(today) ? until : today;
+    final next = DateTime(
+      base.year,
+      base.month,
+      base.day,
+    ).add(const Duration(days: AppConfig.subscriptionDays));
+    _artisans[index] = artisan.copyWith(
+      subscriptionUntil: next,
+      clearPendingPayment: true,
+    );
+    _addNotification(
+      userId: _artisanUserId(artisanId),
+      type: AppNotificationType.subscription,
+      title: 'Tu taller está activo',
+      body:
+          'Recibimos tu mensualidad. Apareces activo hasta el '
+          '${_shortDate(next)}.',
+    );
+    await _persistArtisans();
+    await _persistNotifications();
+    notifyListeners();
+    await _deliverPending();
+    return null;
+  }
+
+  /// La administración rechaza un pago avisado (no se encontró, monto
+  /// incorrecto…).
+  Future<String?> adminRejectSubscription(
+    String artisanId, {
+    String? reason,
+  }) async {
+    await _pull();
+    if (!isAdmin) return 'Solo la administración puede revisar pagos.';
+    final index = _artisans.indexWhere((item) => item.id == artisanId);
+    if (index < 0) return 'No se encontró ese taller.';
+    _artisans[index] = _artisans[index].copyWith(clearPendingPayment: true);
+    final clean = (reason ?? '').trim();
+    _addNotification(
+      userId: _artisanUserId(artisanId),
+      type: AppNotificationType.subscription,
+      title: 'No pudimos confirmar tu pago',
+      body: clean.isEmpty
+          ? 'Revisa tu referencia y vuelve a registrarla.'
+          : 'Motivo: $clean',
+    );
+    await _persistArtisans();
+    await _persistNotifications();
+    notifyListeners();
+    await _deliverPending();
+    return null;
+  }
+
+  /// La administración pone un taller fuera de servicio de inmediato.
+  Future<String?> adminSetOutOfService(String artisanId) async {
+    await _pull();
+    if (!isAdmin) return 'Solo la administración puede hacer este cambio.';
+    final index = _artisans.indexWhere((item) => item.id == artisanId);
+    if (index < 0) return 'No se encontró ese taller.';
+    _artisans[index] = _artisans[index].copyWith(
+      clearSubscription: true,
+      clearPendingPayment: true,
+    );
+    _addNotification(
+      userId: _artisanUserId(artisanId),
+      type: AppNotificationType.subscription,
+      title: 'Tu taller aparece fuera de servicio',
+      body: 'Renueva tu mensualidad para volver a recibir pedidos y reservas.',
+    );
+    await _persistArtisans();
+    await _persistNotifications();
+    notifyListeners();
+    await _deliverPending();
+    return null;
+  }
 
   /// Talleres de muestra que trae la app (no son cuentas reales).
   bool isSampleArtisan(String id) =>
-      DemoContent.sampleArtisans.any((artisan) => artisan.id == id);
+      DemoContent.sampleArtisans.any((artisan) => artisan.id == id) ||
+      (artisanById(id)?.isShowcase ?? false);
 
   Artisan? artisanById(String id) {
     for (final artisan in _artisans) {
@@ -454,6 +617,13 @@ class AppController extends ChangeNotifier {
   List<Experience> get activeServices => [
     for (final service in _services)
       if (service.isActive) service,
+  ];
+
+  /// Experiencias que el turista puede reservar: activas y de talleres con su
+  /// mensualidad al día.
+  List<Experience> get bookableServices => [
+    for (final service in activeServices)
+      if (isArtisanInService(service.artisanId)) service,
   ];
 
   List<Experience> servicesOf(
@@ -989,6 +1159,8 @@ class AppController extends ChangeNotifier {
     final current = now ?? DateTime.now();
     final live = serviceById(service.id) ?? service;
     if (!live.isActive) return 'Esta experiencia ya no está disponible.';
+    final blocked = artisanServiceBlock(live.artisanId, now: current);
+    if (blocked != null) return blocked;
     if (people < 1) return 'Elige al menos una persona.';
     final today = DateTime(current.year, current.month, current.day);
     final day = DateTime(date.year, date.month, date.day);
@@ -1189,6 +1361,8 @@ class AppController extends ChangeNotifier {
     }
     final live = productById(product.id) ?? product;
     if (!live.isActive) return 'Esta pieza ya no está disponible.';
+    final blocked = artisanServiceBlock(live.artisanId);
+    if (blocked != null) return blocked;
     if (live.price == null) {
       return 'Esta pieza es de precio a consultar: escribe al taller.';
     }
@@ -1301,6 +1475,12 @@ class AppController extends ChangeNotifier {
     final byArtisan = <String, List<OrderItem>>{};
     for (final line in _cart) {
       final product = productById(line.productId);
+      final blocked = product == null
+          ? null
+          : artisanServiceBlock(product.artisanId);
+      if (blocked != null) {
+        return (orders: const <Order>[], error: blocked);
+      }
       if (product == null || !product.isActive) {
         return (
           orders: const <Order>[],
@@ -2486,6 +2666,7 @@ class AppController extends ChangeNotifier {
     _services = catalog.services;
 
     await _removeSampleData();
+    await _ensureShowcase();
 
     if (_bookings.isEmpty && AppConfig.seedSampleData) {
       _bookings = seedBookings();
@@ -2791,6 +2972,33 @@ class AppController extends ChangeNotifier {
   }
 
   Future<void> _persistBookings() => _repository.save(_bookings);
+
+  /// Agrega los dos talleres de muestra (activo y fuera de servicio) si no
+  /// están. Solo en la versión del piloto, no con los datos de ejemplo.
+  Future<void> _ensureShowcase() async {
+    if (!AppConfig.showShowcaseArtisans || AppConfig.seedSampleData) return;
+    var artisansChanged = false;
+    for (final sample in DemoContent.showcaseArtisans) {
+      if (!_artisans.any((item) => item.id == sample.id)) {
+        _artisans.add(sample);
+        artisansChanged = true;
+      }
+    }
+    if (artisansChanged) await _persistArtisans();
+    final products = [
+      for (final sample in DemoContent.showcaseProducts)
+        if (!_products.any((item) => item.id == sample.id)) sample,
+    ];
+    final services = [
+      for (final sample in DemoContent.showcaseExperiences)
+        if (!_services.any((item) => item.id == sample.id)) sample,
+    ];
+    if (products.isNotEmpty || services.isNotEmpty) {
+      _products = [..._products, ...products];
+      _services = [..._services, ...services];
+      await _persistCatalog();
+    }
+  }
 
   /// Versión del piloto: borra de esta instalación los talleres, piezas,
   /// experiencias, reservas, pedidos, comisiones y avisos de ejemplo que

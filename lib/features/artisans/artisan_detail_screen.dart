@@ -13,6 +13,8 @@ import '../../data/models.dart';
 import '../catalog/product_detail_screen.dart';
 import '../catalog/widgets/product_card.dart';
 import '../contact/contact_screen.dart';
+import '../../core/widgets/service_status_badge.dart';
+import '../../core/config/app_config.dart';
 
 /// Perfil del artesano: oficio, técnicas y piezas.
 class ArtisanDetailScreen extends StatelessWidget {
@@ -132,6 +134,13 @@ class ArtisanDetailScreen extends StatelessWidget {
                     spacing: Insets.sm,
                     runSpacing: Insets.sm,
                     children: [
+                      ServiceStatusBadge(artisanId: artisan.id),
+                      if (AppConfig.showDemoBadges &&
+                          context.app.isSampleArtisan(artisan.id))
+                        const BelPill(
+                          label: 'Ejemplo',
+                          icon: Icons.science_outlined,
+                        ),
                       BelPill(
                         label: artisan.cave,
                         icon: Icons.terrain_outlined,
@@ -149,6 +158,15 @@ class ArtisanDetailScreen extends StatelessWidget {
                         ),
                     ],
                   ),
+                  if (!context.app.isArtisanInService(artisan.id)) ...[
+                    const SizedBox(height: Insets.lg),
+                    const OutOfServiceNotice(
+                      message:
+                          'Este taller está fuera de servicio por ahora: no '
+                          'recibe pedidos ni reservas hasta renovar su '
+                          'mensualidad.',
+                    ),
+                  ],
                   const SizedBox(height: Insets.xl),
                   if (artisan.bio.trim().isNotEmpty) ...[
                     Text(artisan.bio, style: context.texts.bodyLarge),

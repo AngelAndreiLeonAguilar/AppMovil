@@ -14,6 +14,7 @@ import '../../core/utils/contact_links.dart';
 import '../contact/contact_screen.dart';
 import '../orders/cart_screen.dart';
 import '../../core/config/app_config.dart';
+import '../../core/widgets/service_status_badge.dart';
 
 /// Detalle de una pieza del catálogo.
 class ProductDetailScreen extends StatelessWidget {
@@ -37,7 +38,10 @@ class ProductDetailScreen extends StatelessWidget {
     final artisan = this.artisan ?? context.app.artisanById(product.artisanId);
     final inCart = context.app.cartQuantityOf(product.id);
     final askPrice = product.price == null;
-    final buyLabel = product.isSoldOut
+    final outOfService = !context.app.isArtisanInService(product.artisanId);
+    final buyLabel = outOfService
+        ? 'Taller fuera de servicio'
+        : product.isSoldOut
         ? 'Agotada'
         : askPrice
         ? 'Consultar precio'
@@ -111,6 +115,7 @@ class ProductDetailScreen extends StatelessWidget {
                         icon: Icons.sell_outlined,
                         color: scheme.primary,
                       ),
+                      ServiceStatusBadge(artisanId: product.artisanId),
                       if (AppConfig.showDemoBadges &&
                           context.app.isSampleArtisan(product.artisanId))
                         const BelPill(
@@ -307,7 +312,7 @@ class ProductDetailScreen extends StatelessWidget {
                     icon: askPrice
                         ? Icons.chat_bubble_outline_rounded
                         : Icons.add_shopping_cart_rounded,
-                    onPressed: product.isSoldOut
+                    onPressed: outOfService || product.isSoldOut
                         ? null
                         : askPrice
                         ? () => _askPrice(context, product, artisan)

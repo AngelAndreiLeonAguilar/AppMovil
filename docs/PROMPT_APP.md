@@ -130,18 +130,18 @@ Los datos de ejemplo son 4 talleres, piezas como el «Sombrero Brisa de Bécal»
   - patrocinios locales (desde el mes 9);
   - audioguías y paquetes (a futuro).
 - **Plan financiero por fases.** Regla: nunca se gasta lo que no se ha ganado.
-  - **Fase 1, piloto (meses 1–6): ≈ $542 al mes.**
+  - **Fase 1, piloto (meses 1–6): ≈ $222 al mes.**
     - Servidor: $0 con la capa gratuita de Supabase.
-    - Dominio: $42. Traslados: $500.
+    - Dominio: $42. Traslados: $180 (3 integrantes, 2 visitas al mes, Bécal queda cerca).
     - Google Play: $25 USD (≈ $450), un solo pago.
     - El equipo participa como residencia profesional o servicio social, sin sueldo fijo.
-    - Equilibrio: 8 sombreros finos de $800 o 4 planes de taller al mes (sin IVA, antes de ISR).
-  - **Fase 2, lanzamiento: ≈ $3,492 al mes.**
+    - Equilibrio: 4 sombreros finos de $800 o 2 mensualidades de taller al mes (sin IVA, antes de ISR).
+  - **Fase 2, lanzamiento: ≈ $3,172 al mes.**
     - Supabase Pro: $25 USD ≈ $450.
-    - Dominio $42, contador $1,000, marketing $1,500, traslados $500.
+    - Dominio $42, contador $1,000, marketing $1,500, traslados $180.
     - El equipo cobra un sueldo variable: el 70 % de la utilidad.
-    - Equilibrio: 51 sombreros finos de $800 al mes.
-  - **Fase 3, operación estable: ≈ $18,642 al mes.**
+    - Equilibrio: 46 sombreros finos de $800 al mes.
+  - **Fase 3, operación estable: ≈ $18,322 al mes.**
     - Fase 2, más un sueldo fijo de 3 × $5,000 (≈ 20 h/semana, por arriba de la parte proporcional del salario mínimo de 2026, $315.04 al día) y Apple $99 USD/año ≈ $150 al mes.
     - Solo se activa cuando el ingreso cubra este costo 3 meses seguidos.
     - Requiere sumar otras comunidades y alianzas; Bécal sola no alcanza.
@@ -158,6 +158,12 @@ Los datos de ejemplo son 4 talleres, piezas como el «Sombrero Brisa de Bécal»
 - **Cobro de la comisión hoy:** la app genera el estado de cuenta y registra cada liquidación; el taller liquida cada mes. Con pagos en línea se descontará automáticamente.
 - **Beneficio para el artesano:** $0 de entrada; paga solo si vende; conserva el 90 % de cada pieza y el 85 % de cada visita; usa gratis la agenda, el inventario y el control de ingresos.
 - **Segmentos:** turistas de la ruta Mérida–Campeche, compradores de jipi japa, talleres de Bécal, y escuelas, agencias y grupos.
+
+## Mensualidad de los talleres (implementada)
+- Cada taller paga $199 al mes (IVA incluido). Con la mensualidad al día aparece «Activo» y recibe pedidos y reservas; sin ella aparece «Fuera de servicio»: se ve, pero no vende ni recibe reservas.
+- El taller registra la referencia de su pago desde su panel (Mensualidad). La administración lo confirma en «Mensualidades» y el taller queda activo 30 días; también puede rechazar el pago o ponerlo fuera de servicio. El taller recibe un aviso en cada caso.
+- La app no cobra en línea: el pago es por transferencia o en efectivo.
+- Hay dos talleres de muestra, marcados «Ejemplo»: uno activo y otro fuera de servicio. No reciben pedidos reales.
 
 ## Pendiente para producción (NO existe todavía)
 1. Pagos en línea (Mercado Pago o Stripe).

@@ -69,6 +69,15 @@ Importante para las pruebas con clientes:
 - Única cuenta inicial: `admin@belaaktun.mx` (administración, contraseña
   `Becal2026`), para aprobar talleres y moderar el catálogo. **Cambia la
   contraseña** en `AppConfig.adminAccount` antes de entregar la app.
+- **Mensualidad de los talleres** (`AppConfig.monthlyFee`, $199 con IVA): con
+  la mensualidad al día el taller aparece **Activo** y recibe pedidos y
+  reservas; sin ella aparece **Fuera de servicio** (se ve, pero no vende). El
+  taller registra la referencia de su pago en *Panel → Mensualidad* y la
+  administración lo confirma en *Administración → Mensualidades* (activa 30
+  días). La app no cobra en línea. Desde el inicio de sesión, «Cómo funciona la
+  mensualidad» lo explica a cualquier taller.
+- Dos talleres de muestra, marcados «Ejemplo»: uno activo y otro fuera de
+  servicio (`AppConfig.showShowcaseArtisans`). No reciben pedidos reales.
 - Los datos de ejemplo siguen disponibles para las pruebas automáticas
   (`AppConfig.seedSampleData`, que activa `test/flutter_test_config.dart`).
 - Las contraseñas se guardan con sal y hash, nunca en texto plano.

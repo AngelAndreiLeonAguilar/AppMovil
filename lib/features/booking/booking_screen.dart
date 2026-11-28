@@ -46,7 +46,7 @@ class _BookingScreenState extends State<BookingScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_experienceId.isEmpty) {
-      final services = context.app.activeServices;
+      final services = context.app.bookableServices;
       if (services.isNotEmpty) _experienceId = services.first.id;
       // Rellena con los datos de la cuenta para no escribirlos cada vez.
       final user = context.app.user;
@@ -68,7 +68,7 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   /// Experiencias activas publicadas por los talleres.
-  List<Experience> get _services => context.app.activeServices;
+  List<Experience> get _services => context.app.bookableServices;
 
   bool _selectionReady = false;
 

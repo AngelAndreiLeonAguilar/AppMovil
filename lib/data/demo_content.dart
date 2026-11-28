@@ -242,6 +242,94 @@ abstract final class DemoContent {
   ];
 
   // ---------------------------------------------------------------------------
+  // Talleres de muestra del piloto
+  //
+  // Dos ejemplos para enseñar a turistas y artesanos cómo funciona la
+  // mensualidad: uno al día (activo) y otro sin pagar (fuera de servicio). Se
+  // marcan como «Ejemplo» y no reciben pedidos ni reservas reales.
+  // ---------------------------------------------------------------------------
+
+  static const String showcaseActiveId = 'art-muestra-activo';
+  static const String showcaseInactiveId = 'art-muestra-fuera';
+
+  static final List<Artisan> showcaseArtisans = [
+    Artisan(
+      id: showcaseActiveId,
+      name: 'Taller de muestra · Activo',
+      craft: 'Ejemplo de taller con mensualidad al día',
+      cave: 'Bécal, Campeche',
+      bio:
+          'Así se ve un taller con su mensualidad pagada: aparece activo, '
+          'muestra sus piezas y experiencias y puede recibir pedidos y '
+          'reservas. Es un ejemplo: no recibe pedidos reales.',
+      techniques: const ['Tejido de jipi japa'],
+      yearsOfCraft: 0,
+      openDays: const [1, 2, 3, 4, 5, 6],
+      openTime: '09:00',
+      closeTime: '17:00',
+      paymentMethods: const ['Efectivo', 'Transferencia'],
+      languages: const ['Español'],
+      subscriptionUntil: DateTime(2099, 12, 31),
+      isShowcase: true,
+    ),
+    const Artisan(
+      id: showcaseInactiveId,
+      name: 'Taller de muestra · Fuera de servicio',
+      craft: 'Ejemplo de taller sin mensualidad',
+      cave: 'Bécal, Campeche',
+      bio:
+          'Así se ve un taller sin su mensualidad al día: sigue visible, pero '
+          'aparece «fuera de servicio» y no puede recibir pedidos ni reservas '
+          'hasta que pague. Es un ejemplo.',
+      techniques: ['Tejido de jipi japa'],
+      yearsOfCraft: 0,
+      isShowcase: true,
+    ),
+  ];
+
+  static const List<Product> showcaseProducts = [
+    Product(
+      id: 'prod-muestra-activo',
+      name: 'Sombrero de muestra',
+      artisanId: showcaseActiveId,
+      category: 'Sombreros',
+      description:
+          'Pieza de ejemplo de un taller activo: se puede ver su precio y el '
+          'botón para agregarla al carrito.',
+      technique: 'Ejemplo',
+      price: 800,
+      stock: 5,
+    ),
+    Product(
+      id: 'prod-muestra-fuera',
+      name: 'Bolso de muestra',
+      artisanId: showcaseInactiveId,
+      category: 'Bolsos',
+      description:
+          'Pieza de ejemplo de un taller fuera de servicio: se ve, pero no se '
+          'puede comprar hasta que el taller pague su mensualidad.',
+      technique: 'Ejemplo',
+      price: 450,
+      stock: 3,
+    ),
+  ];
+
+  static const List<Experience> showcaseExperiences = [
+    Experience(
+      id: 'exp-muestra-activo',
+      title: 'Visita de muestra',
+      description:
+          'Experiencia de ejemplo de un taller activo: muestra horarios y cupo '
+          'como lo verá el turista.',
+      durationMinutes: 60,
+      artisanId: showcaseActiveId,
+      pricePerPerson: 200,
+      depositPercent: 0,
+      maxParticipants: 8,
+    ),
+  ];
+
+  // ---------------------------------------------------------------------------
   // Datos visibles en la app
   //
   // Con `AppConfig.seedSampleData = false` (versión para el piloto) la app

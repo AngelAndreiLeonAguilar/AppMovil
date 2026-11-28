@@ -14,6 +14,9 @@ import '../../domain/booking.dart';
 import '../booking/widgets/booking_detail_sheet.dart';
 import '../notifications/widgets/notifications_bell.dart';
 import 'widgets/profile_progress_card.dart';
+import '../../core/widgets/service_status_badge.dart';
+import '../../data/models.dart';
+import 'subscription_screen.dart';
 
 /// Panel principal del artesano: contadores, dinero y actividad reciente.
 class ArtisanDashboardScreen extends StatelessWidget {
@@ -47,6 +50,19 @@ class ArtisanDashboardScreen extends StatelessWidget {
             actions: const [NotificationsBell()],
           ),
         ),
+
+        if (artisan != null)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Insets.page,
+                0,
+                Insets.page,
+                Insets.lg,
+              ),
+              child: _SubscriptionBanner(artisan: artisan),
+            ),
+          ),
 
         const SliverToBoxAdapter(
           child: Padding(
@@ -540,6 +556,74 @@ class _PendingRow extends StatelessWidget {
           ),
           const SizedBox(width: Insets.sm),
           Icon(Icons.chevron_right_rounded, size: 18, color: palette.textFaint),
+        ],
+      ),
+    );
+  }
+}
+
+
+/// Estado de la mensualidad en el panel: activo, en revisión o fuera de
+/// servicio. Al tocarlo abre la pantalla para registrar el pago.
+class _SubscriptionBanner extends StatelessWidget {
+  const _SubscriptionBanner({required this.artisan});
+
+  final Artisan artisan;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = context.app.isArtisanInService(artisan.id);
+    final pending = artisan.hasPendingPayment;
+    final until = artisan.subscriptionUntil;
+    final color = active ? serviceActiveColor : serviceInactiveColor;
+    final title = active
+        ? 'Taller activo'
+        : (pending ? 'Pago en revisión' : 'Tu taller está fuera de servicio');
+    final subtitle = active
+        ? (until == null
+              ? 'Mensualidad al día'
+              : 'Mensualidad pagada hasta el ${formatSubscriptionDate(until)}')
+        : (pending
+              ? 'La administración confirmará tu pago pronto.'
+              : 'Paga \$${AppConfig.monthlyFee} al mes para recibir pedidos '
+                    'y reservas.');
+
+    return BelSurface(
+      padding: const EdgeInsets.all(Insets.md),
+      elevated: !active,
+      borderColor: color.withValues(alpha: 0.35),
+      onTap: () => openSubscription(context),
+      child: Row(
+        children: [
+          Icon(
+            active
+                ? Icons.check_circle_rounded
+                : (pending
+                      ? Icons.hourglass_top_rounded
+                      : Icons.pause_circle_rounded),
+            color: color,
+          ),
+          const SizedBox(width: Insets.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: context.texts.titleSmall),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: context.texts.bodySmall?.copyWith(
+                    color: context.palette.textMuted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            active ? 'Ver' : 'Activar',
+            style: context.texts.labelLarge?.copyWith(color: color),
+          ),
+          Icon(Icons.chevron_right_rounded, color: color),
         ],
       ),
     );

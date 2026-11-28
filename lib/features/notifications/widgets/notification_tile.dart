@@ -27,6 +27,7 @@ class NotificationTile extends StatelessWidget {
     AppNotificationType.reminder => Icons.alarm_rounded,
     AppNotificationType.newOrder => Icons.shopping_bag_rounded,
     AppNotificationType.orderUpdate => Icons.local_shipping_outlined,
+    AppNotificationType.subscription => Icons.verified_rounded,
   };
 
   @override

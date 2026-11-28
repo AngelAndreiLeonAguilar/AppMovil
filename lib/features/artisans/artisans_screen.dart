@@ -12,6 +12,7 @@ import '../../core/widgets/page_header.dart';
 import '../../core/widgets/reveal.dart';
 import '../../data/models.dart';
 import 'artisan_detail_screen.dart';
+import '../../core/widgets/service_status_badge.dart';
 
 /// Directorio de artesanos de Bécal.
 class ArtisansScreen extends StatelessWidget {
@@ -135,6 +136,7 @@ class _ArtisanRow extends StatelessWidget {
                   spacing: Insets.sm,
                   runSpacing: Insets.xs,
                   children: [
+                    ServiceStatusBadge(artisanId: artisan.id),
                     BelPill(
                       label: artisan.cave.replaceFirst('Cueva ', ''),
                       icon: Icons.terrain_outlined,

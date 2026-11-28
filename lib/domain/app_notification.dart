@@ -11,7 +11,8 @@ enum AppNotificationType {
   noShow('No-show registrado'),
   reminder('Recordatorio de visita'),
   newOrder('Nueva compra'),
-  orderUpdate('Pedido de compra');
+  orderUpdate('Pedido de compra'),
+  subscription('Mensualidad');
 
   const AppNotificationType(this.label);
 

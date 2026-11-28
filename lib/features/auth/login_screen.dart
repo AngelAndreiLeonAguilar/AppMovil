@@ -11,6 +11,7 @@ import '../../core/widgets/bel_text_field.dart';
 import '../account/test_server_card.dart';
 import 'register_screen.dart';
 import '../../core/widgets/bel_logo.dart';
+import '../artisan/subscription_screen.dart';
 
 /// Inicio de sesión contra la API real.
 class LoginScreen extends StatefulWidget {
@@ -341,6 +342,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                         const RegisterScreen(artisan: true),
                                   ),
                                 ),
+                        ),
+                        const SizedBox(height: Insets.xs),
+                        BelButton(
+                          label: 'Cómo funciona la mensualidad',
+                          icon: Icons.help_outline_rounded,
+                          variant: BelButtonVariant.ghost,
+                          compact: true,
+                          onPressed: () => openSubscription(context),
                         ),
                       ],
                     ),

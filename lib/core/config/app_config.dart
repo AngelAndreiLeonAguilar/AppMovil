@@ -48,6 +48,33 @@ abstract final class AppConfig {
   /// la cuenta de administración.
   static const bool autoApproveArtisans = true;
 
+  // ---------------------------------------------------------------------------
+  // Mensualidad de los talleres
+  //
+  // Con la mensualidad al día el taller aparece activo y recibe pedidos y
+  // reservas. Sin ella se muestra como «fuera de servicio». La app no cobra en
+  // línea: el taller paga por transferencia o en efectivo, registra su
+  // referencia y la administración confirma el pago.
+  // ---------------------------------------------------------------------------
+
+  /// `false` desactiva la regla (las pruebas antiguas lo apagan).
+  static bool enforceSubscription = true;
+
+  /// Mensualidad por taller, en pesos con IVA incluido.
+  static const int monthlyFee = 199;
+
+  /// Días que cubre cada pago confirmado.
+  static const int subscriptionDays = 30;
+
+  /// Cómo pagar (se muestra al taller). Ajusta con los datos reales.
+  static const String subscriptionPaymentInstructions =
+      'Paga por transferencia a la cuenta de Bel-Aaktun que te comparte la '
+      'administración, o en efectivo con el equipo durante su visita.';
+
+  /// Muestra dos talleres de ejemplo (uno activo y otro fuera de servicio)
+  /// para enseñar cómo funciona la app. No reciben pedidos reales.
+  static const bool showShowcaseArtisans = true;
+
   /// Datos de ejemplo (talleres, piezas, experiencias, reservas y las cuentas
   /// de artesana y turista de prueba).
   ///

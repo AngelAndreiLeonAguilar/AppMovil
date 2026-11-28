@@ -14,6 +14,7 @@ import '../../domain/user_account.dart';
 import 'admin_commissions_panel.dart';
 import '../../domain/user.dart';
 import 'admin_operations.dart';
+import 'admin_subscriptions_panel.dart';
 
 /// Panel del administrador: verificación de talleres, usuarios y auditoría.
 class AdminScreen extends StatefulWidget {
@@ -315,6 +316,7 @@ class _AdminScreenState extends State<AdminScreen> {
                       (5, 'Pedidos'),
                       (6, 'Reservas'),
                       (7, 'Catálogo'),
+                      (8, 'Mensualidades'),
                       (3, 'Comisiones'),
                       (2, 'Auditoría'),
                     ])
@@ -350,6 +352,8 @@ class _AdminScreenState extends State<AdminScreen> {
             if (_tab == 6)
               const SliverToBoxAdapter(child: AdminBookingsPanel()),
             if (_tab == 7) const SliverToBoxAdapter(child: AdminCatalogPanel()),
+            if (_tab == 8)
+              const SliverToBoxAdapter(child: AdminSubscriptionsPanel()),
           ],
 
           const SliverToBoxAdapter(child: SizedBox(height: 132)),

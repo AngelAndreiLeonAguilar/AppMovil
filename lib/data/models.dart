@@ -27,6 +27,10 @@ class Artisan {
     this.paymentMethods = const [],
     this.languages = const [],
     this.isPublished = true,
+    this.subscriptionUntil,
+    this.subscriptionPendingRef,
+    this.subscriptionPendingAt,
+    this.isShowcase = false,
   });
 
   final String id;
@@ -76,6 +80,30 @@ class Artisan {
   /// Un taller no publicado no aparece a los turistas.
   final bool isPublished;
 
+  /// Mensualidad pagada hasta esta fecha (incluida). `null` = nunca pagada.
+  final DateTime? subscriptionUntil;
+
+  /// Referencia del pago que el taller avisó y espera confirmación.
+  final String? subscriptionPendingRef;
+
+  /// Cuándo avisó el pago pendiente.
+  final DateTime? subscriptionPendingAt;
+
+  /// Taller de muestra para enseñar cómo se ve la app (no recibe pedidos).
+  final bool isShowcase;
+
+  /// Con la mensualidad al día el taller está activo; si no, aparece como
+  /// «fuera de servicio» y no recibe pedidos ni reservas.
+  bool isInServiceAt(DateTime now) {
+    final until = subscriptionUntil;
+    if (until == null) return false;
+    final lastDay = DateTime(until.year, until.month, until.day);
+    final today = DateTime(now.year, now.month, now.day);
+    return !today.isAfter(lastDay);
+  }
+
+  bool get hasPendingPayment => subscriptionPendingRef != null;
+
   bool get hasSchedule =>
       openDays.isNotEmpty && openTime != null && closeTime != null;
 
@@ -101,6 +129,11 @@ class Artisan {
     List<String>? paymentMethods,
     List<String>? languages,
     bool? isPublished,
+    DateTime? subscriptionUntil,
+    String? subscriptionPendingRef,
+    DateTime? subscriptionPendingAt,
+    bool clearPendingPayment = false,
+    bool clearSubscription = false,
   }) => Artisan(
     id: id,
     name: name ?? this.name,
@@ -122,6 +155,16 @@ class Artisan {
     paymentMethods: paymentMethods ?? this.paymentMethods,
     languages: languages ?? this.languages,
     isPublished: isPublished ?? this.isPublished,
+    subscriptionUntil: clearSubscription
+        ? null
+        : (subscriptionUntil ?? this.subscriptionUntil),
+    subscriptionPendingRef: clearPendingPayment
+        ? null
+        : (subscriptionPendingRef ?? this.subscriptionPendingRef),
+    subscriptionPendingAt: clearPendingPayment
+        ? null
+        : (subscriptionPendingAt ?? this.subscriptionPendingAt),
+    isShowcase: isShowcase,
   );
 
   Map<String, dynamic> toJson() => {
@@ -145,6 +188,10 @@ class Artisan {
     'paymentMethods': paymentMethods,
     'languages': languages,
     'isPublished': isPublished,
+    'subscriptionUntil': subscriptionUntil?.toIso8601String(),
+    'subscriptionPendingRef': subscriptionPendingRef,
+    'subscriptionPendingAt': subscriptionPendingAt?.toIso8601String(),
+    'isShowcase': isShowcase,
   };
 
   factory Artisan.fromJson(Map<String, dynamic> json) => Artisan(
@@ -171,6 +218,14 @@ class Artisan {
     paymentMethods: _strings(json['paymentMethods']),
     languages: _strings(json['languages']),
     isPublished: json['isPublished'] as bool? ?? true,
+    subscriptionUntil: DateTime.tryParse(
+      json['subscriptionUntil'] as String? ?? '',
+    ),
+    subscriptionPendingRef: json['subscriptionPendingRef'] as String?,
+    subscriptionPendingAt: DateTime.tryParse(
+      json['subscriptionPendingAt'] as String? ?? '',
+    ),
+    isShowcase: json['isShowcase'] as bool? ?? false,
   );
 }
 
